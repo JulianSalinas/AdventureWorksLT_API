@@ -1,0 +1,14 @@
+C:\Github\AdventureWorksLT\AdventureWorksLT_DA\bin\Debug\net5.0\AdventureWorksLT_DA.deps.json
+C:\Github\AdventureWorksLT\AdventureWorksLT_DA\bin\Debug\net5.0\AdventureWorksLT_DA.runtimeconfig.json
+C:\Github\AdventureWorksLT\AdventureWorksLT_DA\bin\Debug\net5.0\AdventureWorksLT_DA.runtimeconfig.dev.json
+C:\Github\AdventureWorksLT\AdventureWorksLT_DA\bin\Debug\net5.0\AdventureWorksLT_DA.dll
+C:\Github\AdventureWorksLT\AdventureWorksLT_DA\bin\Debug\net5.0\ref\AdventureWorksLT_DA.dll
+C:\Github\AdventureWorksLT\AdventureWorksLT_DA\bin\Debug\net5.0\AdventureWorksLT_DA.pdb
+C:\Github\AdventureWorksLT\AdventureWorksLT_DA\obj\Debug\net5.0\AdventureWorksLT_DA.GeneratedMSBuildEditorConfig.editorconfig
+C:\Github\AdventureWorksLT\AdventureWorksLT_DA\obj\Debug\net5.0\AdventureWorksLT_DA.AssemblyInfoInputs.cache
+C:\Github\AdventureWorksLT\AdventureWorksLT_DA\obj\Debug\net5.0\AdventureWorksLT_DA.AssemblyInfo.cs
+C:\Github\AdventureWorksLT\AdventureWorksLT_DA\obj\Debug\net5.0\AdventureWorksLT_DA.csproj.CoreCompileInputs.cache
+C:\Github\AdventureWorksLT\AdventureWorksLT_DA\obj\Debug\net5.0\AdventureWorksLT_DA.dll
+C:\Github\AdventureWorksLT\AdventureWorksLT_DA\obj\Debug\net5.0\ref\AdventureWorksLT_DA.dll
+C:\Github\AdventureWorksLT\AdventureWorksLT_DA\obj\Debug\net5.0\AdventureWorksLT_DA.pdb
+C:\Github\AdventureWorksLT\AdventureWorksLT_DA\obj\Debug\net5.0\AdventureWorksLT_DA.genruntimeconfig.cache

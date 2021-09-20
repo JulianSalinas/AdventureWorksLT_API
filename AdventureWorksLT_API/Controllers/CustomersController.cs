@@ -30,11 +30,12 @@ namespace AdventureWorksLT_API.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [Authorize(Roles = "AdventureWorks.Admin")]
+        [Authorize(Roles = "MAP_UsuariosAdministracion_APT")]
         [HttpGet("GetCustomersByPage")]
         public IActionResult GetCustomersByPage([FromQuery]PageRequest request)
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(requiredScope);
+            var user = User.Identity.Name;
+            //HttpContext.VerifyUserHasAnyAcceptedScope(requiredScope);
 
             var totalRecords = _context.Customer.Count();
 
@@ -54,6 +55,39 @@ namespace AdventureWorksLT_API.Controllers
                 .ToList();
 
             var response = new PageResponse<Customer> { 
+                TotalRecords = totalRecords,
+                PageRecords = customers
+            };
+
+            return Ok(response);
+        }
+
+        [Authorize(Roles = "FORBIDDEN")]
+        [HttpGet("GetCustomersByPage2")]
+        public IActionResult GetCustomersByPage2([FromQuery] PageRequest request)
+        {
+            var user = User.Identity.Name;
+            //HttpContext.VerifyUserHasAnyAcceptedScope(requiredScope);
+
+            var totalRecords = _context.Customer.Count();
+
+            var defaultOrderBy = "lastName";
+            var orderBy = string.IsNullOrWhiteSpace(request.OrderBy) ? defaultOrderBy : request.OrderBy;
+            var orderByDir = request.OrderByDir ?? "asc";
+
+            var source = _context.Customer;
+
+            var query = orderByDir == "asc"
+                ? source.OrderByDynamic(c => $"c.{orderBy}")
+                : source.OrderByDescendingDynamic(c => $"c.{orderBy}");
+
+            var customers = query
+                .Skip((request.PageNumber + 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToList();
+
+            var response = new PageResponse<Customer>
+            {
                 TotalRecords = totalRecords,
                 PageRecords = customers
             };

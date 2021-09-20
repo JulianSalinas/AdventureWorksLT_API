@@ -1,13 +1,17 @@
+using AdventureWorksLT_API.Services;
 using AdventureWorksLT_DA;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
@@ -21,6 +25,8 @@ namespace AdventureWorksLT_API
 {
     public class Startup
     {
+        public const string CORS_ORIGINS = "CorsOrigins";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -31,13 +37,26 @@ namespace AdventureWorksLT_API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
-
+            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
+            services.AddAuthentication(IISDefaults.AuthenticationScheme);
             services.AddControllers();
+
+            services.AddCors(opt =>
+            {
+                opt.AddPolicy("CorsPolicy", builder => builder
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .WithOrigins(Configuration.GetSection(CORS_ORIGINS).Get<string[]>())
+                    .AllowCredentials());
+            });
 
             services.AddDbContext<AdventureWorksContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("AdventureWorksLT")));
+
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddTransient<IUserRoleManager, TranslatedUserRoleManager>();
+            //services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
 
             services.AddSwaggerGen(c =>
             {
@@ -58,6 +77,7 @@ namespace AdventureWorksLT_API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            app.UseCors("CorsPolicy");
 
             app.UseAuthentication();
             app.UseAuthorization();

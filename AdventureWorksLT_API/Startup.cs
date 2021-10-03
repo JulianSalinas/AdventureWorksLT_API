@@ -1,31 +1,20 @@
-using AdventureWorksLT_API.Services;
 using AdventureWorksLT_DA;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using AdventureWorksLT_API.Helpers;
 
 namespace AdventureWorksLT_API
 {
     public class Startup
     {
-        public const string CORS_ORIGINS = "CorsOrigins";
+        private const string CorsOrigins = "CorsOrigins";
 
         public Startup(IConfiguration configuration)
         {
@@ -37,9 +26,9 @@ namespace AdventureWorksLT_API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
-            services.AddAuthentication(IISDefaults.AuthenticationScheme);
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
+            // services.AddAuthentication(IISDefaults.AuthenticationScheme);
             services.AddControllers();
 
             services.AddCors(opt =>
@@ -47,16 +36,17 @@ namespace AdventureWorksLT_API
                 opt.AddPolicy("CorsPolicy", builder => builder
                     .AllowAnyHeader()
                     .AllowAnyMethod()
-                    .WithOrigins(Configuration.GetSection(CORS_ORIGINS).Get<string[]>())
+                    .WithOrigins(Configuration.GetSection(CorsOrigins).Get<string[]>())
                     .AllowCredentials());
             });
 
             services.AddDbContext<AdventureWorksContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("AdventureWorksLT")));
 
-            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddTransient<IUserRoleManager, TranslatedUserRoleManager>();
-            //services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
+            services.AddAutoMapper(typeof(AutoMappingProfile));
+            // services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            // services.AddTransient<IUserRoleManager, TranslatedUserRoleManager>();
+            // services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
 
             services.AddSwaggerGen(c =>
             {
@@ -65,7 +55,7 @@ namespace AdventureWorksLT_API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {

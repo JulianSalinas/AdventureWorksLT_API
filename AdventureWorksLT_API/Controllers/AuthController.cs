@@ -24,7 +24,6 @@ namespace AdventureWorksLT_API.Controllers
         /// <summary>
         /// Get list of roles that belong to the authenticated user
         /// </summary>
-        /// <param name="request"></param>
         /// <returns></returns>
         [HttpGet("GetRoles")]
         public IActionResult GetCustomersByPage()

@@ -1,4 +1,5 @@
-﻿using AdventureWorksLT_API.Models;
+﻿using System.Collections.Generic;
+using AdventureWorksLT_API.Models;
 using AdventureWorksLT_DA;
 using AdventureWorksLT_DA.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web.Resource;
 using System.Linq;
+using AutoMapper;
 
 namespace AdventureWorksLT_API.Controllers
 {
@@ -14,13 +16,15 @@ namespace AdventureWorksLT_API.Controllers
     [Route("[controller]")]
     public class CustomersController : ControllerBase
     {
-        static readonly string[] requiredScope = new string[] { "AdventureWorksLT_API.Read" };
+        private static readonly string[] RequiredScope = { "AdventureWorksLT_API.Read" };
 
+        private readonly IMapper _mapper;
         private readonly ILogger<CustomersController> _logger;
         private readonly AdventureWorksContext _context;
 
-        public CustomersController(ILogger<CustomersController> logger, AdventureWorksContext context)
+        public CustomersController(IMapper mapper, ILogger<CustomersController> logger, AdventureWorksContext context)
         {
+            _mapper = mapper;
             _logger = logger;
             _context = context;
         }
@@ -30,16 +34,14 @@ namespace AdventureWorksLT_API.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [Authorize(Roles = "MAP_UsuariosAdministracion_APT")]
         [HttpGet("GetCustomersByPage")]
         public IActionResult GetCustomersByPage([FromQuery]PageRequest request)
         {
-            var user = User.Identity.Name;
-            //HttpContext.VerifyUserHasAnyAcceptedScope(requiredScope);
+            HttpContext.VerifyUserHasAnyAcceptedScope(RequiredScope);
 
             var totalRecords = _context.Customer.Count();
 
-            var defaultOrderBy = "lastName";
+            const string defaultOrderBy = "lastName";
             var orderBy = string.IsNullOrWhiteSpace(request.OrderBy) ? defaultOrderBy : request.OrderBy;
             var orderByDir = request.OrderByDir ?? "asc";
 
@@ -54,46 +56,16 @@ namespace AdventureWorksLT_API.Controllers
                 .Take(request.PageSize)
                 .ToList();
 
-            var response = new PageResponse<Customer> { 
+            var records = _mapper.Map<List<Customer>, List<CustomerDTO>>(customers);
+
+            var response = new PageResponse<CustomerDTO> { 
                 TotalRecords = totalRecords,
-                PageRecords = customers
+                PageRecords = records
             };
 
             return Ok(response);
         }
 
-        [Authorize(Roles = "FORBIDDEN")]
-        [HttpGet("GetCustomersByPage2")]
-        public IActionResult GetCustomersByPage2([FromQuery] PageRequest request)
-        {
-            var user = User.Identity.Name;
-            //HttpContext.VerifyUserHasAnyAcceptedScope(requiredScope);
-
-            var totalRecords = _context.Customer.Count();
-
-            var defaultOrderBy = "lastName";
-            var orderBy = string.IsNullOrWhiteSpace(request.OrderBy) ? defaultOrderBy : request.OrderBy;
-            var orderByDir = request.OrderByDir ?? "asc";
-
-            var source = _context.Customer;
-
-            var query = orderByDir == "asc"
-                ? source.OrderByDynamic(c => $"c.{orderBy}")
-                : source.OrderByDescendingDynamic(c => $"c.{orderBy}");
-
-            var customers = query
-                .Skip((request.PageNumber + 1) * request.PageSize)
-                .Take(request.PageSize)
-                .ToList();
-
-            var response = new PageResponse<Customer>
-            {
-                TotalRecords = totalRecords,
-                PageRecords = customers
-            };
-
-            return Ok(response);
-        }
 
     }
 }

@@ -61,9 +61,9 @@ namespace AdventureWorksLT_API
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AdventureWorksLT_API v1"));
             }
-
+            
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AdventureWorksLT_API v1"));
             app.UseHttpsRedirection();
 
             app.UseRouting();
